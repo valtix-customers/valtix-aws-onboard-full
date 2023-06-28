@@ -1,0 +1,9 @@
+.terraform*
+terraform*
+*.json
+sedemo*.tfvars
+sedemo*.sh
+sedemo*.pem
+valtix*.json
+backend.tf
+.DS_Store
