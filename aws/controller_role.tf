@@ -40,14 +40,12 @@ resource "aws_iam_role_policy" "valtix_controller_policy" {
     Statement = [
       {
         Action = [
+          "acm:DescribeCertificate",
           "acm:ListCertificates",
           "apigateway:GET",
           "ec2:*",
-          "events:PutRule",
-          "events:PutTargets",
-          "events:DeleteRule",
-          "events:RemoveTargets",
           "elasticloadbalancing:*",
+          "events:*",
           "globalaccelerator:*",
           "iam:ListPolicies",
           "iam:ListRoles",
@@ -56,7 +54,9 @@ resource "aws_iam_role_policy" "valtix_controller_policy" {
           "route53resolver:*",
           "servicequotas:GetServiceQuota",
           "s3:ListAllMyBuckets",
-          "s3:ListBucket"
+          "s3:ListBucket",
+          "wafv2:Get*",
+          "wafv2:List*"
         ],
         Effect   = "Allow",
         Resource = "*"
@@ -69,26 +69,38 @@ resource "aws_iam_role_policy" "valtix_controller_policy" {
         ],
         Effect = "Allow",
         Resource = [
-          aws_iam_role.valtix_controller_role.arn
+          aws_iam_role.valtix_controller_role.arn,
+          aws_iam_role.valtix_inventory_role.arn,
+          aws_iam_role.valtix_firewall_role.arn
         ]
       },
       {
         Action = [
-          "iam:GetRole",
-          "iam:GetRolePolicy",
-          "iam:ListRolePolicies",
           "iam:PassRole"
         ],
         Effect = "Allow",
         Resource = [
-          aws_iam_role.valtix_firewall_role.arn,
-          aws_iam_role.valtix_inventory_role.arn
+          aws_iam_role.valtix_inventory_role.arn,
+          aws_iam_role.valtix_firewall_role.arn
         ]
       },
       {
         Action   = "iam:CreateServiceLinkedRole",
         Effect   = "Allow",
         Resource = "arn:aws:iam::*:role/aws-service-role/*"
+      },
+      {
+        Action = [
+          "secretsmanager:CreateSecret",
+          "secretsmanager:UpdateSecret",
+          "secretsmanager:DeleteSecret",
+          "secretsmanager:GetSecretValue",
+          "secretsmanager:PutSecretValue"
+        ],
+        Effect = "Allow",
+        Resource = [
+          "arn:aws:secretsmanager:*:*:secret:events!*"
+        ]
       }
     ]
   })
